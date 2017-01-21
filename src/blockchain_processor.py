@@ -55,11 +55,11 @@ class BlockchainProcessor(Processor):
 
         self.dblock = threading.Lock()
 
-        self.creditbitd_url = 'http://%s:%s@%s:%s/' % (
-            config.get('creditbitd', 'creditbitd_user'),
-            config.get('creditbitd', 'creditbitd_password'),
-            config.get('creditbitd', 'creditbitd_host'),
-            config.get('creditbitd', 'creditbitd_port'))
+        self.aquariuscoind_url = 'http://%s:%s@%s:%s/' % (
+            config.get('aquariuscoind', 'aquariuscoind_user'),
+            config.get('aquariuscoind', 'aquariuscoind_password'),
+            config.get('aquariuscoind', 'aquariuscoind_host'),
+            config.get('aquariuscoind', 'aquariuscoind_port'))
 
         self.sent_height = 0
         self.sent_header = None
@@ -73,7 +73,7 @@ class BlockchainProcessor(Processor):
 
     def do_catch_up(self):
 
-        self.header = self.block2header(self.creditbitd('getblock', [self.storage.last_hash]))
+        self.header = self.block2header(self.aquariuscoind('getblock', [self.storage.last_hash]))
         self.header['utxo_root'] = self.storage.get_root_hash().encode('hex')
         self.catch_up(sync=False)
         print_log("Blockchain is up to date.")
@@ -83,7 +83,7 @@ class BlockchainProcessor(Processor):
         while not self.shared.stopped():
             self.main_iteration()
             if self.shared.paused():
-                print_log("creditbitd is responding")
+                print_log("aquariuscoind is responding")
                 self.shared.unpause()
             time.sleep(10)
 
@@ -104,14 +104,14 @@ class BlockchainProcessor(Processor):
         print_log(s)
 
 
-    def creditbitd(self, method, params=[]):
+    def aquariuscoind(self, method, params=[]):
         postdata = dumps({"method": method, 'params': params, 'id': 'jsonrpc'})
         while True:
             try:
-                respdata = urllib.urlopen(self.creditbitd_url, postdata).read()
+                respdata = urllib.urlopen(self.aquariuscoind_url, postdata).read()
                 break
             except:
-                print_log("cannot reach creditbitd...")
+                print_log("cannot reach aquariuscoind...")
                 self.shared.pause()
                 time.sleep(10)
                 if self.shared.stopped():
@@ -137,8 +137,8 @@ class BlockchainProcessor(Processor):
         }
 
     def get_header(self, height):
-        block_hash = self.creditbitd('getblockhash', [height])
-        b = self.creditbitd('getblock', [block_hash])
+        block_hash = self.aquariuscoind('getblockhash', [height])
+        b = self.aquariuscoind('getblock', [block_hash])
         return self.block2header(b)
 
     def init_headers(self, db_height):
@@ -183,7 +183,7 @@ class BlockchainProcessor(Processor):
         self.flush_headers()
 
     def hash_header(self, header):
-        return rev_hex(HashX11(header_to_string(header).decode('hex')).encode('hex'))
+        return rev_hex(HashScrypt(header_to_string(header).decode('hex')).encode('hex'))
 
     def read_header(self, block_height):
         if os.path.exists(self.headers_filename):
@@ -238,7 +238,7 @@ class BlockchainProcessor(Processor):
 
     def get_mempool_transaction(self, txid):
         try:
-            raw_tx = self.creditbitd('getrawtransaction', [txid, 0])
+            raw_tx = self.aquariuscoind('getrawtransaction', [txid, 0])
         except:
             return None
 
@@ -299,8 +299,8 @@ class BlockchainProcessor(Processor):
 
     def get_merkle(self, tx_hash, height):
 
-        block_hash = self.creditbitd('getblockhash', [height])
-        b = self.creditbitd('getblock', [block_hash])
+        block_hash = self.aquariuscoind('getblockhash', [height])
+        b = self.aquariuscoind('getblock', [block_hash])
         tx_list = b.get('tx')
         tx_pos = tx_list.index(tx_hash)
 
@@ -398,12 +398,12 @@ class BlockchainProcessor(Processor):
                 undo = undo_info.pop(txid)
                 self.storage.revert_transaction(txid, tx, block_height, touched_addr, undo)
 
-        if revert: 
+        if revert:
             assert undo_info == {}
 
         # add undo info
         if not revert:
-            self.storage.write_undo_info(block_height, self.creditbitd_height, undo_info)
+            self.storage.write_undo_info(block_height, self.aquariuscoind_height, undo_info)
 
         # add the max
         self.storage.db_undo.put('height', repr( (block_hash, block_height, self.storage.db_version) ))
@@ -421,7 +421,7 @@ class BlockchainProcessor(Processor):
             result = self.process(request, cache_only=True)
         except BaseException as e:
             self.push_response(session, {'id': message_id, 'error': str(e)})
-            return 
+            return
 
         if result == -1:
             self.queue.put((session, request))
@@ -471,7 +471,7 @@ class BlockchainProcessor(Processor):
 
 
     def process(self, request, cache_only=False):
-        
+
         message_id = request['id']
         method = request['method']
         params = request.get('params', [])
@@ -532,7 +532,7 @@ class BlockchainProcessor(Processor):
 
         elif method == 'blockchain.transaction.broadcast':
             try:
-                txo = self.creditbitd('sendrawtransaction', params)
+                txo = self.aquariuscoind('sendrawtransaction', params)
                 print_log("sent tx:", txo)
                 result = txo
             except BaseException, e:
@@ -549,11 +549,11 @@ class BlockchainProcessor(Processor):
 
         elif method == 'blockchain.transaction.get':
             tx_hash = params[0]
-            result = self.creditbitd('getrawtransaction', [tx_hash, 0])
+            result = self.aquariuscoind('getrawtransaction', [tx_hash, 0])
 
         elif method == 'blockchain.estimatefee':
             num = int(params[0])
-            result = self.creditbitd('estimatefee', [num])
+            result = self.aquariuscoind('estimatefee', [num])
 
         else:
             raise BaseException("unknown method:%s" % method)
@@ -565,7 +565,7 @@ class BlockchainProcessor(Processor):
 
 
     def getfullblock(self, block_hash):
-        block = self.creditbitd('getblock', [block_hash])
+        block = self.aquariuscoind('getblock', [block_hash])
 
         rawtxreq = []
         i = 0
@@ -579,9 +579,9 @@ class BlockchainProcessor(Processor):
 
         postdata = dumps(rawtxreq)
         try:
-            respdata = urllib.urlopen(self.creditbitd_url, postdata).read()
+            respdata = urllib.urlopen(self.aquariuscoind_url, postdata).read()
         except:
-            logger.error("creditbitd error (getfullblock)",exc_info=True)
+            logger.error("aquariuscoind error (getfullblock)",exc_info=True)
             self.shared.stop()
 
         r = loads(respdata)
@@ -589,7 +589,7 @@ class BlockchainProcessor(Processor):
         for ir in r:
             if ir['error'] is not None:
                 self.shared.stop()
-                print_log("Error: make sure you run creditbitd with txindex=1; use -reindex if needed.")
+                print_log("Error: make sure you run aquariuscoind with txindex=1; use -reindex if needed.")
                 raise BaseException(ir['error'])
             rawtxdata.append(ir['result'])
         block['tx'] = rawtxdata
@@ -603,10 +603,10 @@ class BlockchainProcessor(Processor):
             self.mtime('')
 
             # are we done yet?
-            info = self.creditbitd('getinfo')
-            self.creditbitd_height = info.get('blocks')
-            creditbitd_block_hash = self.creditbitd('getblockhash', [self.creditbitd_height])
-            if self.storage.last_hash == creditbitd_block_hash:
+            info = self.aquariuscoind('getinfo')
+            self.aquariuscoind_height = info.get('blocks')
+            aquariuscoind_block_hash = self.aquariuscoind('getblockhash', [self.aquariuscoind_height])
+            if self.storage.last_hash == aquariuscoind_block_hash:
                 self.up_to_date = True
                 break
 
@@ -616,7 +616,7 @@ class BlockchainProcessor(Processor):
             # not done..
             self.up_to_date = False
             try:
-                next_block_hash = self.creditbitd('getblockhash', [self.storage.height + 1])
+                next_block_hash = self.aquariuscoind('getblockhash', [self.storage.height + 1])
                 next_block = self.getfullblock(next_block_hash)
             except BaseException, e:
                 revert = True
@@ -633,7 +633,7 @@ class BlockchainProcessor(Processor):
                 self.write_header(self.block2header(next_block), sync)
                 self.storage.last_hash = next_block_hash
                 self.mtime('import')
-            
+
                 if self.storage.height % 1000 == 0 and not sync:
                     t_daemon = self.mtimes.get('daemon')
                     t_import = self.mtimes.get('import')
@@ -661,16 +661,16 @@ class BlockchainProcessor(Processor):
                     prev_root_hash = None
 
 
-        self.header = self.block2header(self.creditbitd('getblock', [self.storage.last_hash]))
+        self.header = self.block2header(self.aquariuscoind('getblock', [self.storage.last_hash]))
         self.header['utxo_root'] = self.storage.get_root_hash().encode('hex')
 
-        if self.shared.stopped(): 
+        if self.shared.stopped():
             print_log( "closing database" )
             self.storage.close()
 
 
     def memorypool_update(self):
-        mempool_hashes = set(self.creditbitd('getrawmempool'))
+        mempool_hashes = set(self.aquariuscoind('getrawmempool'))
         touched_addresses = set([])
 
         # get new transactions
@@ -774,7 +774,7 @@ class BlockchainProcessor(Processor):
             # TODO: update cache here. if new value equals cached value, do not send notification
             self.address_queue.put((address,sessions))
 
-    
+
     def close(self):
         self.blockchain_thread.join()
         print_log("Closing database...")
@@ -826,5 +826,3 @@ class BlockchainProcessor(Processor):
                         'method': 'blockchain.address.subscribe',
                         'params': [addr, status],
                         })
-
-

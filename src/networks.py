@@ -1,14 +1,14 @@
 # Main network and testnet3 definitions
 
 params = {
-    'creditbit_main': {
-        'pubkey_address': 28,
+    'aquariuscoin_main': {
+        'pubkey_address': 23,
         'script_address': 5,
-        'genesis_hash': '00000c1dd2ca94b11281b0e50cf3ead9983967dfa0776425dcbb992d3c70db7d'
+        'genesis_hash': '00000393a7de08ce23b3882ae7b5c1567e83bda4849ed24b52610a9b2541c6c9'
     },
-    'creditbit_test': {
+    'aquariuscoin_test': {
         'pubkey_address': 111,
         'script_address': 196,
-        'genesis_hash': '0x00000ee290012380667a78682c0c516fc1e9d25ce6e2bd1ad2fad3f9b4057f8d'
+        'genesis_hash': '00005b3bb1da9b87ce69834b3b1bd98018eccf663c3a4e3c89827a4c0c3b2933'
     }
 }

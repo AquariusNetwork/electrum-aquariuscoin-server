@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Electrum - lightweight Creditbit client
+# Electrum - lightweight aquariuscoin client
 # Copyright (C) 2011 thomasv@gitorious
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,14 +20,14 @@ import threading
 import time
 import hashlib
 import sys
-import x11_hash
+import scrypt
 
 __b58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 __b58base = len(__b58chars)
 
 global PUBKEY_ADDRESS
 global SCRIPT_ADDRESS
-PUBKEY_ADDRESS = 28
+PUBKEY_ADDRESS = 23
 SCRIPT_ADDRESS = 5
 
 def rev_hex(s):
@@ -52,8 +52,8 @@ def var_int(i):
 
 
 Hash = lambda x: hashlib.sha256(hashlib.sha256(x).digest()).digest()
-HashX11 = lambda x: x11_hash.getPoWHash(x)
 
+HashScrypt = lambda x: scrypt.hash(x, x, 1024, 1, 1, 32)
 
 hash_encode = lambda x: x[::-1].encode('hex')
 
@@ -159,7 +159,7 @@ def b58encode(v):
         long_value = div
     result = __b58chars[long_value] + result
 
-    # Creditbit does a little leading-zero-compression:
+    # aquariuscoin does a little leading-zero-compression:
     # leading 0-bytes in the input become leading-1s
     nPad = 0
     for c in v:
@@ -238,7 +238,7 @@ def init_logger(logfile):
     hdlr = logging.handlers.WatchedFileHandler(logfile)
     formatter = logging.Formatter('%(asctime)s %(message)s', "[%d/%m/%Y-%H:%M:%S]")
     hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr) 
+    logger.addHandler(hdlr)
     logger.setLevel(logging.INFO)
 
 
@@ -247,6 +247,3 @@ def print_log(*args):
 
 def print_warning(message):
     logger.warning(message)
-
-
-

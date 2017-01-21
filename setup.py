@@ -1,35 +1,35 @@
 from setuptools import setup
 
 setup(
-    name="electrum-creditbit-server",
+    name="electrum-aquariuscoin-server",
     version="1.0",
-    scripts=['run_electrum_creditbit_server.py','electrum-creditbit-server'],
+    scripts=['run_electrum_aquariuscoin_server.py','electrum-aquariuscoin-server'],
     install_requires=['plyvel','jsonrpclib', 'irc>=11'],
     package_dir={
-        'electrumcreditbitserver':'src'
+        'electrumaquariuscoinserver':'src'
         },
     py_modules=[
-        'electrumcreditbitserver.__init__',
-        'electrumcreditbitserver.utils',
-        'electrumcreditbitserver.storage',
-        'electrumcreditbitserver.deserialize',
-        'electrumcreditbitserver.networks',
-        'electrumcreditbitserver.blockchain_processor',
-        'electrumcreditbitserver.server_processor',
-        'electrumcreditbitserver.processor',
-        'electrumcreditbitserver.version',
-        'electrumcreditbitserver.ircthread',
-        'electrumcreditbitserver.stratum_tcp',
-        'electrumcreditbitserver.stratum_http'
+        'electrumaquariuscoinserver.__init__',
+        'electrumaquariuscoinserver.utils',
+        'electrumaquariuscoinserver.storage',
+        'electrumaquariuscoinserver.deserialize',
+        'electrumaquariuscoinserver.networks',
+        'electrumaquariuscoinserver.blockchain_processor',
+        'electrumaquariuscoinserver.server_processor',
+        'electrumaquariuscoinserver.processor',
+        'electrumaquariuscoinserver.version',
+        'electrumaquariuscoinserver.ircthread',
+        'electrumaquariuscoinserver.stratum_tcp',
+        'electrumaquariuscoinserver.stratum_http'
     ],
-    description="Creditbit Electrum Server",
+    description="aquariuscoin Electrum Server",
     author="Thomas Voegtlin",
     author_email="thomasv1@gmx.deg",
-    maintainer="creditbit",
-    maintainer_email="support@creditbit.org",
+    maintainer="aquariuscoin",
+    maintainer_email="support@aquariuscoin.org",
     license="GNU Affero GPLv3",
-    url="https://github.com/creditbit/electrum-creditbit-server/",
-    long_description="""Server for the Electrum Lightweight Creditbit Wallet"""
+    url="https://github.com/aquariuscoin/electrum-aquariuscoin-server/",
+    long_description="""Server for the Electrum Lightweight aquariuscoin Wallet"""
 )
 
 

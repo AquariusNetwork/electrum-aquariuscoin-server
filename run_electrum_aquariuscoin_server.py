@@ -28,14 +28,14 @@ import imp
 
 
 if os.path.dirname(os.path.realpath(__file__)) == os.getcwd():
-    imp.load_module('electrumcreditbitserver', *imp.find_module('src'))
+    imp.load_module('electrumaquariuscoinserver', *imp.find_module('src'))
 
-from electrumcreditbitserver import storage, networks, utils
-from electrumcreditbitserver.processor import Dispatcher, print_log
-from electrumcreditbitserver.server_processor import ServerProcessor
-from electrumcreditbitserver.blockchain_processor import BlockchainProcessor
-from electrumcreditbitserver.stratum_tcp import TcpServer
-from electrumcreditbitserver.stratum_http import HttpServer
+from electrumaquariuscoinserver import storage, networks, utils
+from electrumaquariuscoinserver.processor import Dispatcher, print_log
+from electrumaquariuscoinserver.server_processor import ServerProcessor
+from electrumaquariuscoinserver.blockchain_processor import BlockchainProcessor
+from electrumaquariuscoinserver.stratum_tcp import TcpServer
+from electrumaquariuscoinserver.stratum_http import HttpServer
 
 
 logging.basicConfig()
@@ -80,8 +80,8 @@ def create_config(filename=None):
     config = ConfigParser.ConfigParser()
     # set some defaults, which will be overwritten by the config file
     config.add_section('server')
-    config.set('server', 'banner', 'Welcome to Creditbit Electrum!')
-    config.set('server', 'banner_file', '/etc/electrum-creditbit.banner')
+    config.set('server', 'banner', 'Welcome to aquariuscoin Electrum!')
+    config.set('server', 'banner_file', '/etc/electrum-aquariuscoin.banner')
     config.set('server', 'host', 'localhost')
     config.set('server', 'electrum_rpc_port', '8002')
     config.set('server', 'report_host', '')
@@ -98,13 +98,13 @@ def create_config(filename=None):
 	
     config.set('server', 'irc', 'no')
     config.set('server', 'irc_nick', '')
-    config.set('server', 'coin', 'creditbit')
-    config.set('server', 'logfile', '/var/log/electrum-creditbit.log')
+    config.set('server', 'coin', 'aquariuscoin')
+    config.set('server', 'logfile', '/var/log/electrum-aquariuscoin.log')
     config.set('server', 'donation_address', '')
     config.set('server', 'max_subscriptions', '10000')
 
     config.add_section('leveldb')
-    config.set('leveldb', 'path', '/dev/shm/electrum-creditbit_db')
+    config.set('leveldb', 'path', '/dev/shm/electrum-aquariuscoin_db')
     config.set('leveldb', 'pruning_limit', '100')
     config.set('leveldb', 'utxo_cache', str(64*1024*1024))
     config.set('leveldb', 'hist_cache', str(128*1024*1024))
@@ -113,12 +113,12 @@ def create_config(filename=None):
 
     # set network parameters
     config.add_section('network')
-    config.set('network', 'type', 'creditbit_main')
+    config.set('network', 'type', 'aquariuscoin_main')
 
     # try to find the config file in the default paths
     if not filename:
         for path in ('/etc/', ''):
-            filename = path + 'electrum-creditbit.conf'
+            filename = path + 'electrum-aquariuscoin.conf'
             if os.path.isfile(filename):
                 break
 
